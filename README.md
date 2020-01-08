@@ -1,6 +1,4 @@
-# react-native-dialer-replacement
-
-Dialer Replacement for androif based on react-native-tele(https://github.com/telefon-one/react-native-tele/) for React Native
+# gateway
 
 **UPDATE**: Now is compatible with RN 0.60+ (AndroidX)
 
