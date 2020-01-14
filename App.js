@@ -22,9 +22,17 @@ import { Endpoint as teleEndpoint } from 'react-native-tele'
 import { Endpoint as sipEndpoint } from 'react-native-sip'
 import { ReplaceDialer } from 'react-native-replace-dialer'
 
+const sip2tele=true;
+const tele2sip=false;
+
+
+
 export default class App extends Component {
   constructor() {
     super();
+
+    this.teleCall=null;
+    this.sipCall=null;
   }
   
   async componentDidMount() {
@@ -59,19 +67,23 @@ export default class App extends Component {
     // Subscribe to endpoint events
     // tEndpoint.on("registration_changed", (account) => {}); // TODO
     // tEndpoint.on("connectivity_changed", (online) => {}); // TODO
-    this.tEndpoint.on("call_received", (call) => { console.log("call_received",call); });
-    this.tEndpoint.on("call_changed", (call) => { console.log("call_changed",call);  });
-    this.tEndpoint.on("call_terminated", (call) => { console.log("call_terminated",call);  });
+    this.tEndpoint.on("call_received", (call) => {
+      console.log("tEndpoint.call_received", call);
+      this.onTeleCallReceived(call)
+    });
+    this.tEndpoint.on("call_changed", (call) => {
+      console.log("tEndpoint.call_changed", call);
+      this.onTeleCallChanged(call);
+    });
+    this.tEndpoint.on("call_terminated", (call) => {
+      console.log("tEndpoint.call_terminated", call);
+      this.onTeleCallTerminated(call);
+    });
+
+
     // tEndpoint.on("call_screen_locked", (call) => {  console.log("call_screen_locked",call);  }); // Android only
 
 
-    let options = {
-      headers: {
-        "sim": "1" // TODO
-      }
-    }
-
-    //let call = await tEndpoint.makeCall(destination, options);
   }
 
   async sEndpointInit() {
@@ -143,30 +155,68 @@ export default class App extends Component {
 
     // Subscribe to endpoint events
     this.sEndpoint.on("registration_changed", (account) => {
-      console.log("registration_changed", account);
+      console.log("sEndpoint.registration_changed", account);
     });
     this.sEndpoint.on("connectivity_changed", (online) => {
-      console.log("connectivity_changed", online);
+      console.log("sEndpoint.connectivity_changed", online);
     });
     this.sEndpoint.on("call_received", (call) => {
-      console.log("call_received", call);
-      this.call=call;
-      this.onCallReceived(call)
+      console.log("sEndpoint.call_received", call);
+      this.onSipCallReceived(call)
     });
     this.sEndpoint.on("call_changed", (call) => {
-      console.log("call_changed", call);
-      this.onCallTerminated(call);
-      //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
+      console.log("sEndpoint.call_changed", call);
+      this.onSipCallChanged(call);
     });
     this.sEndpoint.on("call_terminated", (call) => {
-      console.log("call_terminated", call);
-      this.onCallTerminated(call);
+      console.log("sEndpoint.call_terminated", call);
+      this.onSipCallTerminated(call);
       //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
     });
     this.sEndpoint.on("call_screen_locked", (call) => {
-      console.log("call_screen_locked", call);
+      console.log("sEndpoint.call_screen_locked", call);
     }); // Android only
   }
+
+
+  onSipCallReceived = (call) => {
+    if(sip2tele==false) return;
+    this.sipCall=call;
+
+    let options = {
+      headers: {
+        "sim": "1" // TODO
+      }
+    }
+    this.teleCall = /*await*/ this.tEndpoint.makeCall(sipCall.destination, options);
+  }
+
+  onSipCallChanged = (call) => {
+  
+  }
+
+  onSipCallTerminated = (call) => {
+    //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
+    this.tEndpoint.hangup()
+  }
+
+
+  onTeleCallReceived = (call) => {
+    //if(tele2sip==false) return;
+    //this.teleCall=call;
+  }
+
+  onTeleCallChanged = (call) => {
+    this.progress();
+    this.answer();
+  }
+
+  onTeleCallTerminated = (call) => {
+    
+    //this.tEndpoint.hangup()
+    this.hangup();
+  }
+
 
 
   progress = () => {
