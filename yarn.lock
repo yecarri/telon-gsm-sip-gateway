@@ -5028,15 +5028,28 @@ react-is@^16.8.1, react-is@^16.8.4, react-is@^16.9.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.12.0.tgz#2cc0fe0fba742d97fd527c42a13bec4eeb06241c"
   integrity sha512-rPCkf/mWBtKc97aLL9/txD8DZdemK0vkA3JMLShjlJB3Pj3s+lpf1KaBzMfQrAmhMQB0n1cU/SUGgKKBCe837Q==
 
-"react-native-replace-dialer@https://github.com/telefon-one/react-native-replace-dialer":
-  version "0.0.9"
-  resolved "https://github.com/telefon-one/react-native-replace-dialer#34402360496c0b9b67434e3e4d46e90de600adf7"
+react-native-permissions@^2.0.9:
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-2.0.9.tgz#5eabdaa952dd099d14e3790af691f49ff2de0895"
+  integrity sha512-64F95x4Y1RqsQiPco+Qs+OAm3rKUTRfWDMpp1f0If9YfRXOxxVFJqf7mSlVvlSY4pZAhZgLVydOmA7aTTduPUw==
 
-"react-native-tele@https://github.com/telefon-one/react-native-tele":
-  version "0.0.6"
-  resolved "https://github.com/telefon-one/react-native-tele#a093a8006d654863c12debebaf7a407e7c1f25eb"
+"react-native-replace-dialer@https://github.com/telefon-one/react-native-replace-dialer":
+  version "0.0.11"
+  resolved "https://github.com/telefon-one/react-native-replace-dialer#adcb400999dc8f2a7c2f9c4a37c965ec697466e4"
+
+"react-native-sip2@https://github.com/telefon-one/react-native-sip2":
+  version "3.0.2"
+  resolved "https://github.com/telefon-one/react-native-sip2#2da5fda0a1f1b4e7a324c46f789e2087224da6af"
   dependencies:
     events "1.1.0"
+
+"react-native-tele@https://github.com/telefon-one/react-native-tele":
+  version "0.0.9"
+  resolved "https://github.com/telefon-one/react-native-tele#92c76ca77ef95a76648ea720adfb7ee7791fe635"
+  dependencies:
+    events "1.1.0"
+    react-native-permissions "^2.0.9"
+    react-native-replace-dialer "https://github.com/telefon-one/react-native-replace-dialer"
 
 react-native@0.61.5:
   version "0.61.5"

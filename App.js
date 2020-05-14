@@ -1,5 +1,6 @@
 
 import React, { Component } from 'react';
+import {NativeModules} from 'react-native';
 
 import {
   SafeAreaView,
@@ -18,230 +19,39 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-import { Endpoint as teleEndpoint } from 'react-native-tele'
-import { Endpoint as sipEndpoint } from 'react-native-sip'
-import { ReplaceDialer } from 'react-native-replace-dialer'
-
-const sip2tele=true;
-const tele2sip=false;
-
-
+//import {ReplaceDialer} from 'react-native-replace-dialer';
 
 export default class App extends Component {
   constructor() {
     super();
-
-    this.teleCall=null;
-    this.sipCall=null;
   }
   
   async componentDidMount() {
-    await tEndpointInit();
-    await sEndpointInit();
-  }
-
-  async tEndpointInit() {
-    console.log("tEndpointInit()");
-    let tReplaceDialer = new ReplaceDialer();
-
-    if (!tReplaceDialer.isDefault()) {
-      console.log('Is NOT default dialer, try to set.');
-      if (tReplaceDialer.setDefault()) {
-        console.log('Default dialer sucessfully set.');
-      } else {
-        console.log('Default dialer NOT set');
-      }
-    }
-
-
-    this.tEndpoint = new teleEndpoint();
-    //console.log(this.tEndpoint);
-
-    let state = await this.tEndpoint.start(); // List of calls when RN context is started, could not be empty because Background service is working on Android
-    console.log("sEndpoint started");
-
-    let { calls, settings } = state;
-    console.log("calls:\n", calls);
-    console.log("settings:\n", settings);
-
-    // Subscribe to endpoint events
-    // tEndpoint.on("registration_changed", (account) => {}); // TODO
-    // tEndpoint.on("connectivity_changed", (online) => {}); // TODO
-    this.tEndpoint.on("call_received", (call) => {
-      console.log("tEndpoint.call_received", call);
-      this.onTeleCallReceived(call)
-    });
-    this.tEndpoint.on("call_changed", (call) => {
-      console.log("tEndpoint.call_changed", call);
-      this.onTeleCallChanged(call);
-    });
-    this.tEndpoint.on("call_terminated", (call) => {
-      console.log("tEndpoint.call_terminated", call);
-      this.onTeleCallTerminated(call);
-    });
-
-
-    // tEndpoint.on("call_screen_locked", (call) => {  console.log("call_screen_locked",call);  }); // Android only
-
-
-  }
-
-  async sEndpointInit() {
-    console.log("sEndpointInit()");
-    this.sEndpoint = new sipEndpoint;
-
-    let configuration = {
-      "name": "MyUserName",
-
-      //"username": "50363",
-      //"password": "pass50363",
-      //"domain": "sip.zadarma.com",
-      //"regServer": "sip.zadarma.com", // Default wildcard
-
-      "username": "50363",
-      "password": "pass50363",
-      "domain": "172.16.104.17",
-      "regServer": "",
-      //"regServer": "172.16.104.17", // Default wildcard
-
-
-      "proxy": null,
-      "transport": "UDP",//null, // Default TCP
-      
-      "regTimeout": 3600, // Default 3600
-      "regHeaders": {
-        //"X-Custom-Header": "Value"
-      },
-      //"regContactParams": ";unique-device-token-id=XXXXXXXXX",
-      "regOnAdd": true,  // Default true, use false for manual REGISTRATION
-
-      service: {
-        ua: "siptest",
-        stun: ['stun.l.google.com:19302', 'stun4.l.google.com:19302']
-      },
-
-      network: {
-        useAnyway: true,           // Default: true
-        useWifi: true,              // Default: true
-        use3g: true,                // Default: false
-        useEdge: true,             // Default: false
-        useGprs: true,             // Default: false
-        useInRoaming: true,        // Default: false
-        useOtherNetworks: true      // Default: false
-      }
-    };
-
-    let state = await this.sEndpoint.start();
-    console.log("sEndpoint started");
-
-    let { accounts, calls, settings, connectivity } = state;
-    console.log("accounts:\n", accounts);
-    console.log("calls:\n", calls);
-    console.log("settings:\n", settings);
-    console.log("connectivity:\n", connectivity);
-
-    try {
-      console.log("endpoint.createAccount");
-      this.account = await this.sEndpoint.createAccount(configuration);
-      console.log("account created", this.account);
-    } catch (err) {
-      console.log("err");
-      console.error(err);
-    }
-
-
-
-
-
-    // Subscribe to endpoint events
-    this.sEndpoint.on("registration_changed", (account) => {
-      console.log("sEndpoint.registration_changed", account);
-    });
-    this.sEndpoint.on("connectivity_changed", (online) => {
-      console.log("sEndpoint.connectivity_changed", online);
-    });
-    this.sEndpoint.on("call_received", (call) => {
-      console.log("sEndpoint.call_received", call);
-      this.onSipCallReceived(call)
-    });
-    this.sEndpoint.on("call_changed", (call) => {
-      console.log("sEndpoint.call_changed", call);
-      this.onSipCallChanged(call);
-    });
-    this.sEndpoint.on("call_terminated", (call) => {
-      console.log("sEndpoint.call_terminated", call);
-      this.onSipCallTerminated(call);
-      //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
-    });
-    this.sEndpoint.on("call_screen_locked", (call) => {
-      console.log("sEndpoint.call_screen_locked", call);
-    }); // Android only
-  }
-
-
-  onSipCallReceived = (call) => {
-    if(sip2tele==false) return;
-    this.sipCall=call;
-
-    let options = {
-      headers: {
-        "sim": "1" // TODO
-      }
-    }
-    this.teleCall = /*await*/ this.tEndpoint.makeCall(sipCall.destination, options);
-  }
-
-  onSipCallChanged = (call) => {
+    //
+    //await this.tGateway.onMount();
+    /*
+      let tReplaceDialer = new ReplaceDialer();
   
+                tReplaceDialer.isDefaultDialer((data) => {
+                    if (data)
+                      console.log('Is ALREADY default dialer.');
+                    else {
+                      console.log('Is NOT default dialer, try to set.');
+                      tReplaceDialer.setDefaultDialer((data) => {
+                        if (data) {
+                          console.log('Default dialer sucessfully set.');
+                        } else {
+                          console.log('Default dialer NOT set');
+                        }
+                      });
+                    }
+                  });
+                  */
+                 
+
+      
   }
 
-  onSipCallTerminated = (call) => {
-    //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
-    this.tEndpoint.hangup()
-  }
-
-
-  onTeleCallReceived = (call) => {
-    //if(tele2sip==false) return;
-    //this.teleCall=call;
-  }
-
-  onTeleCallChanged = (call) => {
-    this.progress();
-    this.answer();
-  }
-
-  onTeleCallTerminated = (call) => {
-    
-    //this.tEndpoint.hangup()
-    this.hangup();
-  }
-
-
-
-  progress = () => {
-    console.log("pjsip->progress");
-  }
-
-  answer = () => {
-    console.log("pjsip->answer");
-    let options = {};
-    let promise = this.endpoint.answerCall(this.call, options);
-    promise.then(() => {
-      console.log('Answer complete');
-    }).catch((e) => {
-      console.error('Answer failed, show error', e);
-    });
-  }
-
-  hangup = () => {
-    console.log("pjsip->hangup");
-    this.endpoint.hangup();
-  }
-
-  destroy = () => {
-    this.endpoint.destroy();
-  }
 
   render() {
 
