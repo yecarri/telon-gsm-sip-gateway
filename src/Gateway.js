@@ -1,5 +1,8 @@
 import { Endpoint as teleEndpoint } from 'react-native-tele'
 import { Endpoint as sipEndpoint } from 'react-native-sip2'
+import DeviceInfo from 'react-native-device-info';
+
+//import { getUniqueId, getManufacturer } from 'react-native-device-info';
 
 const sip2tele=true;
 const tele2sip=false;
@@ -31,7 +34,8 @@ export default class Gateway{
     async tEndpointInit() {
       console.log("tEndpointInit()");
   
-      let state = await this.tEndpoint.start({ReplaceDialer:false,Permissions:false}); // List of calls when RN context is started, could not be empty because Background service is working on Android
+      let state = await this.tEndpoint.start({ReplaceDialer:true,Permissions:true}); // List of calls when RN context is started, could not be empty because Background service is working on Android
+      //let state = await this.tEndpoint.start({ReplaceDialer:false,Permissions:false}); // List of calls when RN context is started, could not be empty because Background service is working on Android
       console.log("tEndpoint started");
   
       let { calls, settings } = state;
@@ -57,6 +61,10 @@ export default class Gateway{
       console.log("sEndpointInit()");
       //this.sEndpoint = new sipEndpoint;
   
+      //let deviceId = DeviceInfo.getDeviceId();
+      //console.log(deviceId);
+
+
       let configuration = {
         "name": "50015",
   
@@ -74,8 +82,8 @@ export default class Gateway{
         "username": "50015",
         "password": "pass50015",
         "domain": "192.168.88.254",
-        //"regServer": "",
-        "regServer": "192.168.88.254", // Default wildcard
+        "regServer": "",
+        //"regServer": "192.168.88.254", // Default wildcard
         
   
         "proxy": null,
@@ -105,6 +113,15 @@ export default class Gateway{
         }
       };
   
+      let deviceId = DeviceInfo.getDeviceId();
+      console.log(deviceId);
+      if(deviceId!="sp7731cea"){
+        configuration.name="50016";
+        configuration.username="50016";
+        configuration.password="pass50016";
+      }
+      console.log(configuration);
+
       let state = await this.sEndpoint.start();
       console.log("sEndpoint started");
   
@@ -171,13 +188,47 @@ export default class Gateway{
           "_remoteName": null, "_remoteNumber": "50015",
           "_remoteUri": "<sip:50015@172.16.104.17>" 
         */
+        
+       let destination="+"+call._localNumber; //=call._localUri; <sip:900@10.42.0.100;ob
 
-        let destination="+"+call._localNumber; //=call._localUri; <sip:900@10.42.0.100;ob
-        destination="900";
+        if(call._localNumber=="1111")
+        {
+          console.log("1111 test: make call + fast answer");
+          this.sEndpoint.answerCall(call);
+          return;
+        }
+
+        if(call._localNumber=="3333")
+        {
+          console.log("3333 test: make call + fast answer");
+          
+          destination="900";
+
+          this.sEndpoint.answerCall(call);
+          return;
+        }
+
+        if(call._localNumber=="4444")
+        {
+          console.log("4444 test: make call + activate audio session");
+          
+          destination="900";
+
+          this.sEndpoint.activateAudioSession();
+          return;
+        }
+
+
+        console.log("standart call");
+        destination="+79006367756";
+        this.tEndpoint.makeCall(1,destination, options).then((call1)=>{this.teleCall = call1;});
+        
+        //temporary hack one way audio
+        //this.sEndpoint.activateAudioSession();
 
 
 
-      //this.tEndpoint.makeCall(1,destination, options).then((call1)=>{this.teleCall = call1;});
+      
       console.log("ANSWERING");
       this.sEndpoint.answerCall(call);
     }
@@ -202,8 +253,21 @@ export default class Gateway{
         // Дозвонились, передаем early media
         if (call._state=="PJSIP_INV_STATE_EARLY") 
         {
-            //this.sEndpoint.activateAudioSession();
+            this.sEndpoint.activateAudioSession();
         }
+        if (call._state=="ANSWER") 
+        {
+          this.sEndpoint.answerCall(call)
+        }
+        if (call._state=="HANGUP") 
+        {
+          this.sEndpoint.hangupCall(call)
+        }
+        if (call._state=="BUSY") 
+        {
+          this.sEndpoint.busyCall(call)
+        }
+
       //this.progress();
       //this.answer();
     }

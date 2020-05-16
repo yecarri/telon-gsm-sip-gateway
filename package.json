@@ -18,6 +18,8 @@
   "dependencies": {
     "react": "16.9.0",
     "react-native": "0.61.5",
+    "react-native-device-info": "^5.5.7",
+    "react-native-replace-dialer": "https://github.com/telefon-one/react-native-replace-dialer",
     "react-native-sip2": "https://github.com/telefon-one/react-native-sip2",
     "react-native-tele": "https://github.com/telefon-one/react-native-tele"
   },
