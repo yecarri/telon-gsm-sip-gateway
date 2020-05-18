@@ -7,6 +7,40 @@ import DeviceInfo from 'react-native-device-info';
 const sip2tele=true;
 const tele2sip=false;
 
+class Bridge
+{
+
+}
+
+class Bridges
+{
+  constructor(tEndpoint,sEndpoint) {
+    this.teleCall=null;
+    this.sipCall=null;
+    this.tEndpoint = new tEndpoint();
+    this.sEndpoint = new sEndpoint();
+  }
+
+  //by sip
+  //by tele
+  onBridgeReceived = (bridge) => {
+    console.log(">>🔗 ⬆️ onBridgeReceived");
+    // Conf bridge 🌉⬇️⬆️⛓️🔗
+  }
+
+  onBridgeTerminated =(bridge, bySip, byTele) => {
+    console.log(">>🔗 ⬆️ onBridgeTerminated");
+    
+    if(this.conf.sendSipHangup!=true) {
+      this.conf.sendHangup=true;
+      console.log("<<🔮 sEndpoint.hangupCall");
+      this.sEndpoint.hangupCall(this.sipCall);
+    }
+  }
+}
+
+
+
 export default class Gateway{
     constructor() {
       //super();
@@ -14,8 +48,11 @@ export default class Gateway{
       this.teleCall=null;
       this.sipCall=null;
       
+      this.conf={};
+      this.bridges=[];
+
       this.tEndpoint = new teleEndpoint();
-      this.sEndpoint = new sipEndpoint;
+      this.sEndpoint = new sipEndpoint();
     }
    
     onCreate() {
@@ -31,12 +68,17 @@ export default class Gateway{
       await this.sEndpointInit();
     }
   
+
     async tEndpointInit() {
-      console.log("tEndpointInit()");
+      console.log("📱 🚀 tEndpointInit()\n\n");
   
+      //
+
+
       let state = await this.tEndpoint.start({ReplaceDialer:true,Permissions:true}); // List of calls when RN context is started, could not be empty because Background service is working on Android
       //let state = await this.tEndpoint.start({ReplaceDialer:false,Permissions:false}); // List of calls when RN context is started, could not be empty because Background service is working on Android
       console.log("tEndpoint started");
+      
   
       let { calls, settings } = state;
       console.log("calls:\n", calls);
@@ -44,21 +86,21 @@ export default class Gateway{
         
       // tEndpoint.on("connectivity_changed", (online) => {}); // TODO      
       this.tEndpoint.on("call_received", (call) => {
-        console.log("tEndpoint.call_received", call);
+        console.log(">>📱 📞 🔥 tEndpoint.call_received\n\n",(new Date).toUTCString(), call);
         this.onTeleCallReceived(call)
       });
       this.tEndpoint.on("call_changed", (call) => {
-        console.log("tEndpoint.call_changed", call);
+        console.log(">>📱 📞 📶 tEndpoint.call_changed",(new Date).toUTCString(), call);
         this.onTeleCallChanged(call);
       });
       this.tEndpoint.on("call_terminated", (call) => {
-        console.log("tEndpoint.call_terminated", call);
+        console.log(">>📱 📞 📵 tEndpoint.call_terminated",(new Date).toUTCString(), call);
         this.onTeleCallTerminated(call);
       });
     }
   
     async sEndpointInit() {
-      console.log("sEndpointInit()");
+      console.log("🔮 🚀 sEndpointInit()\n\n");
       //this.sEndpoint = new sipEndpoint;
   
       //let deviceId = DeviceInfo.getDeviceId();
@@ -146,33 +188,41 @@ export default class Gateway{
   
       // Subscribe to endpoint events
       this.sEndpoint.on("registration_changed", (account) => {
-        console.log("sEndpoint.registration_changed", account);
+        console.log(">>🔮 ⚙️ sEndpoint.registration_changed", account);
       });
       this.sEndpoint.on("connectivity_changed", (online) => {
-        console.log("sEndpoint.connectivity_changed", online);
+        console.log(">>🔮 ⚙️ sEndpoint.connectivity_changed", online);
       });
       this.sEndpoint.on("call_received", (call) => {
-        console.log("sEndpoint.call_received", call);
+        console.log(">>🔮 📞 🔥 sEndpoint.call_received\n\n", call);
         this.onSipCallReceived(call)
       });
       this.sEndpoint.on("call_changed", (call) => {
-        console.log("sEndpoint.call_changed", call);
+        console.log(">>🔮 📞 📶 sEndpoint.call_changed", call);
         this.onSipCallChanged(call);
       });
       this.sEndpoint.on("call_terminated", (call) => {
-        console.log("sEndpoint.call_terminated", call);
+        console.log(">>🔮 📞 📵 sEndpoint.call_terminated", call);
         this.onSipCallTerminated(call);
         //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
       });
       this.sEndpoint.on("call_screen_locked", (call) => {
-        console.log("sEndpoint.call_screen_locked", call);
+        console.log(">>🔮 sEndpoint.call_screen_locked", call);
       }); // Android only
     }
   
   
     onSipCallReceived = (call) => {
+      //PJSIP_INV_STATE_NULL
+
+
       if(sip2tele==false) return;
+      console.log("<<📱 🌉 ⬆️☎️ tEndpoint.makeCall");
+      //
+      // Conf bridge 🌉⬇️⬆️⛓️🔗
+
       this.sipCall=call;
+      this.conf.sendHangup=false;
   
       let options = {
         headers: {
@@ -221,6 +271,8 @@ export default class Gateway{
 
         console.log("standart call");
         destination="+79006367756";
+
+        console.log("DIALING");
         this.tEndpoint.makeCall(1,destination, options).then((call1)=>{this.teleCall = call1;});
         
         //temporary hack one way audio
@@ -229,78 +281,120 @@ export default class Gateway{
 
 
       
-      console.log("ANSWERING");
-      this.sEndpoint.answerCall(call);
+      
+      //this.sEndpoint.answerCall(call);
     }
   
     onSipCallChanged = (call) => {
-
+      /*
+      PJSIP_INV_STATE_INCOMING
+      PJSIP_INV_STATE_CONNECTING
+      PJSIP_INV_STATE_CONFIRMED
+      */
     }
   
     onSipCallTerminated = (call) => {
-      //Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer
-      this.tEndpoint.hangupCall();
+      if (call._state=="PJSIP_INV_STATE_DISCONNECTED") 
+      {
+        console.log("Если из SIP пришел сигнал повесить трубку - шлем intent в наш Dialer");
+        console.log(this.teleCall);
+
+        if(this.conf.sendHangup!=true){
+          this.conf.sendHangup=true;
+          console.log("<<📱 tEndpoint.hangupCall");
+          this.tEndpoint.hangupCall(this.teleCall);
+        }
+      }
     }
   
   
     onTeleCallReceived = (call) => {
-      //if(tele2sip==false) return;
-      //this.teleCall=call;
+      this.teleCall=call;
+
+      //Проверка входящий/исходящий
+      if (call._state=="TELE_INV_STATE_RINGING") {
+        //Входящий
+        console.log(">>📱 📳 tEndpoint TELE_INV_STATE_RINGING");
+        //
+      } else {
+        //Исходящий
+      }
+      
       
     }
   
     onTeleCallChanged = (call) => {
-        // Дозвонились, передаем early media
-        if (call._state=="PJSIP_INV_STATE_EARLY") 
+      
+      if (call._state=="TELE_INV_STATE_CONNECTING") //PJSIP_INV_STATE_CALLING
+      {
+        console.log("Набор пошел");
+      }
+      if (call._state=="TELE_INV_STATE_DIALING")  //PJSIP_INV_STATE_EARLY
         {
-            this.sEndpoint.activateAudioSession();
+          console.log("Пошли early media, шлем progress");
+          this.sEndpoint.progressCall(this.sipCall);
+
+          //Передача гудков
+          //this.sEndpoint.ringingCall(this.sipCall);
         }
-        if (call._state=="ANSWER") 
+        if (call._state=="TELE_INV_STATE_ACTIVE") //PJSIP_INV_STATE_CONFIRMED
         {
-          this.sEndpoint.answerCall(call)
+          console.log("Поднял трубку, шлем answer в SIP");
+          this.sEndpoint.answerCall(this.sipCall)
         }
-        if (call._state=="HANGUP") 
+        if ((call._state=="TELE_INV_STATE_DISCONNECTED") || (call._state=="TELE_INV_STATE_DISCONNECTING"))  //PJSIP_INV_STATE_DISCONNECTED
         {
-          this.sEndpoint.hangupCall(call)
+          console.log("Повесил трубку, шлем hangup в SIP");
+          if(this.conf.sendHangup!=true) {
+            this.conf.sendHangup=true;
+            this.sEndpoint.hangupCall(this.sipCall)
+          }
+          return;
         }
         if (call._state=="BUSY") 
         {
-          this.sEndpoint.busyCall(call)
+          console.log("Занято");
+          this.sEndpoint.busyCall(this.sipCall);
+          return;
         }
+        if (call._state=="TELE_INV_STATE_UNKNOWN") 
+        {
+          console.log("неизвестный");
+        }
+
+        if (call._state=="TELE_INV_STATE_RINGING")  //PJSIP_INV_STATE_INCOMING
+        {
+          console.log("Входящий");
+          this.sEndpoint.answerCall(this.sipCall)
+        }
+        
 
       //this.progress();
       //this.answer();
     }
   
     onTeleCallTerminated = (call) => {
+      if (call._direction=="DIRECTION_INCOMING") {console.log("no termination on incoming");return;};
+
+      if (call._state=="PJSIP_INV_STATE_DISCONNECTED") 
+        {
+          // Статус повеса
+        }
+
+      
         //TODO: add disconnect state
         //declineCall
-        this.sEndpoint.hangupCall();
+        if(this.conf.sendHangup!=true) {
+          this.conf.sendHangup=true;
+          console.log("<<🔮 sEndpoint.hangupCall");
+          this.sEndpoint.hangupCall(this.sipCall);
+        }
     }
+
+
   
   
-  /*
-    progress = () => {
-      console.log("pjsip->progress");
-    }
-  
-    answer = () => {
-      console.log("pjsip->answer");
-    */
-      /*
-      let options = {};
-      let promise = this.endpoint.answerCall(this.call, options);
-      promise.then(() => {
-        console.log('Answer complete');
-      }).catch((e) => {
-        console.error('Answer failed, show error', e);
-      });
-    }
-  
-    hangup = () => {
-      console.log("pjsip->hangup");
-      //this.endpoint.hangup();
-    } */
+
   
     destroy = () => {
       this.tEndpoint.destroy();
