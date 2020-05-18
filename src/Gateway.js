@@ -64,8 +64,11 @@ export default class Gateway{
     }
 
     async start() {
+      console.log("\n\n");
+      console.log("🚀 Gateway start\n\n");
       await this.tEndpointInit();
       await this.sEndpointInit();
+      console.log("🔥 Gateway started\n\n");
     }
   
 
@@ -77,8 +80,8 @@ export default class Gateway{
 
       let state = await this.tEndpoint.start({ReplaceDialer:true,Permissions:true}); // List of calls when RN context is started, could not be empty because Background service is working on Android
       //let state = await this.tEndpoint.start({ReplaceDialer:false,Permissions:false}); // List of calls when RN context is started, could not be empty because Background service is working on Android
-      console.log("tEndpoint started");
-      
+      console.log("📱 🔥 tEndpoint started");
+      console.log("📱 🚧 state:\n", state)
   
       let { calls, settings } = state;
       console.log("calls:\n", calls);
@@ -165,13 +168,10 @@ export default class Gateway{
       console.log(configuration);
 
       let state = await this.sEndpoint.start();
-      console.log("sEndpoint started");
+      console.log("🔮 🚀 sEndpoint started");
   
       let { accounts, calls, settings, connectivity } = state;
-      console.log("accounts:\n", accounts);
-      console.log("calls:\n", calls);
-      console.log("settings:\n", settings);
-      console.log("connectivity:\n", connectivity);
+      console.log("🔮 🚧 state:\n", state)
   
       try {
         console.log("endpoint.createAccount");
