@@ -33,7 +33,7 @@ class Bridges
     
     if(this.conf.sendSipHangup!=true) {
       this.conf.sendHangup=true;
-      console.log("<<🔮 sEndpoint.hangupCall");
+      console.log("<<🔮 sEndpoint.hangupCall 3");
       this.sEndpoint.hangupCall(this.sipCall);
     }
   }
@@ -45,6 +45,8 @@ export default class Gateway{
     constructor() {
       //super();
   
+      this.txtLog="123";
+
       this.teleCall=null;
       this.sipCall=null;
       
@@ -65,21 +67,68 @@ export default class Gateway{
 
     async start() {
       console.log("\n\n");
+
+      let deviceId = DeviceInfo.getDeviceId();
+      let tConfig={},sConfig={};
+
+      console.log("deviceId:",deviceId);
+      
+      if(deviceId=="sp7731cea"){
+        tConfig={ReplaceDialer:true,Permissions:true};
+        sConfig.name="50015";
+        sConfig.username="50015";
+        sConfig.password="pass50015";
+      } else if(deviceId=="Impress_City"){
+        //tConfig={ReplaceDialer:true,Permissions:true};
+        tConfig={ReplaceDialer:false,Permissions:false};
+        sConfig.name="50014";
+        sConfig.username="50014";
+        sConfig.password="pass50014";
+      } else if(deviceId=="Impress_Tor"){
+        tConfig={ReplaceDialer:true,Permissions:true};
+        sConfig.name="50017";
+        sConfig.username="50017";
+        sConfig.password="pass50017";
+      } else  if(deviceId=="QC_Reference_Phone"){ //Redmi 4A
+        //tConfig={ReplaceDialer:false,Permissions:false};
+        tConfig={ReplaceDialer:true,Permissions:true,fas:false};
+        sConfig.name="50019";
+        sConfig.username="50019";
+        sConfig.password="pass50019";
+      } else if(deviceId=="MSM8937"){ // Redmi 5A
+        //tConfig={ReplaceDialer:false,Permissions:false};
+        tConfig={ReplaceDialer:true,Permissions:true,fas:false};
+        sConfig.name="50018";
+        sConfig.username="50018";
+        sConfig.password="pass50018";
+      } else {
+        tConfig={ReplaceDialer:false,Permissions:false};
+        sConfig.name="50016";
+        sConfig.username="50016";
+        sConfig.password="pass50016";
+      }
+
+      
+      
+
+      
+
       console.log("🚀 Gateway start\n\n");
-      await this.tEndpointInit();
-      await this.sEndpointInit();
+      await this.tEndpointInit(tConfig);
+      await this.sEndpointInit(sConfig);
       console.log("🔥 Gateway started\n\n");
     }
   
 
-    async tEndpointInit() {
+    async tEndpointInit(tConfig) {
       console.log("📱 🚀 tEndpointInit()\n\n");
   
       //
 
 
-      let state = await this.tEndpoint.start({ReplaceDialer:true,Permissions:true}); // List of calls when RN context is started, could not be empty because Background service is working on Android
+      //let state = await this.tEndpoint.start({ReplaceDialer:true,Permissions:true}); // List of calls when RN context is started, could not be empty because Background service is working on Android
       //let state = await this.tEndpoint.start({ReplaceDialer:false,Permissions:false}); // List of calls when RN context is started, could not be empty because Background service is working on Android
+      let state = await this.tEndpoint.start(tConfig); // List of calls when RN context is started, could not be empty because Background service is working on Android
       console.log("📱 🔥 tEndpoint started");
       console.log("📱 🚧 state:\n", state)
   
@@ -102,16 +151,16 @@ export default class Gateway{
       });
     }
   
-    async sEndpointInit() {
+    async sEndpointInit(sConfig) {
       console.log("🔮 🚀 sEndpointInit()\n\n");
       //this.sEndpoint = new sipEndpoint;
   
-      //let deviceId = DeviceInfo.getDeviceId();
-      //console.log(deviceId);
+      let deviceId = DeviceInfo.getDeviceId();
+      console.log(deviceId);
 
 
       let configuration = {
-        "name": "50015",
+        "name": sConfig.name, //"50015",
   
         
         /*
@@ -123,9 +172,11 @@ export default class Gateway{
 
         
     
+
   
-        "username": "50015",
-        "password": "pass50015",
+        "username": sConfig.username, //"50015",
+        "password": sConfig.password, //"pass50015",
+        //"domain": "192.168.88.254:6060",
         "domain": "192.168.88.254",
         "regServer": "",
         //"regServer": "192.168.88.254", // Default wildcard
@@ -134,7 +185,7 @@ export default class Gateway{
         "proxy": null,
         "transport": "UDP",//null, // Default TCP
         
-        "regTimeout": 60, // Default 3600
+        "regTimeout": 3600, // Default 3600
         //"regTimeout": 3600, // Default 3600
         "regHeaders": {
           //"X-Custom-Header": "Value"
@@ -158,14 +209,9 @@ export default class Gateway{
         }
       };
   
-      let deviceId = DeviceInfo.getDeviceId();
-      console.log(deviceId);
-      if(deviceId!="sp7731cea"){
-        configuration.name="50016";
-        configuration.username="50016";
-        configuration.password="pass50016";
-      }
+
       console.log(configuration);
+
 
       let state = await this.sEndpoint.start();
       console.log("🔮 🚀 sEndpoint started");
@@ -241,9 +287,9 @@ export default class Gateway{
         
        let destination="+"+call._localNumber; //=call._localUri; <sip:900@10.42.0.100;ob
 
-        if(call._localNumber=="1111")
+        if((call._localNumber=="50014")||(call._localNumber=="50015")||(call._localNumber=="50016")||(call._localNumber=="50017")||(call._localNumber=="50018"))
         {
-          console.log("1111 test: make call + fast answer");
+          console.log("test: make call + fast answer");
           this.sEndpoint.answerCall(call);
           return;
         }
@@ -270,7 +316,8 @@ export default class Gateway{
 
 
         console.log("standart call");
-        destination="+79006367756";
+        //destination="+79006367756";
+        destination="+"+destination;
 
         console.log("DIALING");
         this.tEndpoint.makeCall(1,destination, options).then((call1)=>{this.teleCall = call1;});
@@ -309,15 +356,19 @@ export default class Gateway{
   
   
     onTeleCallReceived = (call) => {
-      this.teleCall=call;
+      console.log(">>📱 tEndpoint onTeleCallReceived");
 
       //Проверка входящий/исходящий
       if (call._state=="TELE_INV_STATE_RINGING") {
         //Входящий
         console.log(">>📱 📳 tEndpoint TELE_INV_STATE_RINGING");
+        console.log("<<📱 tEndpoint.hangupCall");
+        this.tEndpoint.hangupCall(call);
+
         //
       } else {
         //Исходящий
+        this.teleCall=call;
       }
       
       
@@ -344,9 +395,11 @@ export default class Gateway{
         }
         if ((call._state=="TELE_INV_STATE_DISCONNECTED") || (call._state=="TELE_INV_STATE_DISCONNECTING"))  //PJSIP_INV_STATE_DISCONNECTED
         {
-          console.log("Повесил трубку, шлем hangup в SIP");
+          console.log("Повесил трубку");
           if(this.conf.sendHangup!=true) {
             this.conf.sendHangup=true;
+            console.log("<<🔮 sEndpoint.hangupCall шлем hangup в SIP 2");
+            console.log(this.sipCall);
             this.sEndpoint.hangupCall(this.sipCall)
           }
           return;
@@ -386,7 +439,8 @@ export default class Gateway{
         //declineCall
         if(this.conf.sendHangup!=true) {
           this.conf.sendHangup=true;
-          console.log("<<🔮 sEndpoint.hangupCall");
+          console.log("<<🔮 sEndpoint.hangupCall 1");
+          console.log(this.sipCall);
           this.sEndpoint.hangupCall(this.sipCall);
         }
     }
