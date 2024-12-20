@@ -104,6 +104,7 @@ jobs:
         run: |
           echo "NDK_HOME=$HOME/android-ndk/android-ndk-r17b" >> $GITHUB_ENV
           echo "ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r17b" >> $GITHUB_ENV
+          echo "ndk.dir=$HOME/android-ndk/android-ndk-r17b" > $GITHUB_WORKSPACE/local.properties
 
       - name: Verify NDK installation
         run: |
