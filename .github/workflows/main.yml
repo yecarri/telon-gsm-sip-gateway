@@ -61,12 +61,33 @@ jobs:
       #    node-version: 12
       #    #node-version: 18.19.0
 
-      - name: Setup Android SDK (API Level 19)
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 19
-          ndk: true
-          build-tools: 30.0.3
+      #- name: Setup Android SDK (API Level 19)
+      #  uses: android-actions/setup-android@v2
+      #  with:
+      #    api-level: 19
+      #    ndk: true
+      #    build-tools: 30.0.3
+      - name: Install Android SDK and NDK
+        run: |
+          # Устанавливаем необходимые компоненты Android SDK
+          sudo apt-get update
+          sudo apt-get install -y unzip wget
+
+          # Скачать и распаковать SDK
+          wget https://dl.google.com/android/repository/tools_r25.2.5-linux.zip
+          unzip tools_r25.2.5-linux.zip -d $HOME/android-sdk
+          
+          # Скачать и распаковать NDK
+          wget https://dl.google.com/android/repository/android-ndk-r17b-linux-x86_64.zip
+          unzip android-ndk-r17b-linux-x86_64.zip -d $HOME/android-sdk/ndk
+
+          # Обновить пути окружения
+          echo "export ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/ndk/17.2.4988734" >> $GITHUB_ENV
+          
+          # Установить необходимые API и build tools
+          yes | $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-19" "build-tools;30.0.3" "ndk;17.2.4988734"
+
 
       - name: Navigate to Project Root
         run: cd $GITHUB_WORKSPACE
