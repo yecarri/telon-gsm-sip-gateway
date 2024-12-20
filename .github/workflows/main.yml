@@ -83,15 +83,7 @@ jobs:
           ndk: true
           build-tools: 25.2.5
       #    build-tools: 30.0.3
-  
 
-      - name: Navigate to Project Root
-        run: cd $GITHUB_WORKSPACE
-        working-directory: telon-gateway-app
-
-      - name: Install Dependencies
-        run: npm install
-        working-directory: telon-gateway-app
 
       #- name: Install NDK (if required)
       #  run: |
@@ -115,6 +107,15 @@ jobs:
         run: |
           echo "NDK_HOME=$NDK_HOME"
           ls -la $NDK_HOME
+
+      - name: Navigate to Project Root
+        run: cd $GITHUB_WORKSPACE
+        working-directory: telon-gateway-app
+
+      - name: Install Dependencies
+        run: npm install
+        working-directory: telon-gateway-app
+
 
       - name: Build Android App Bundle
         run: |
