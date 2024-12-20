@@ -76,6 +76,9 @@ jobs:
           sdkmanager "ndk;21.4.7075529"
           echo "ndk.dir=/usr/local/lib/android/sdk/ndk/21.4.7075529" >> android/local.properties
         working-directory: telon-gateway-app        
+        env:
+          ANDROID_HOME: ${{ runner.tool_cache }}/android-sdk
+          PATH: $PATH:${{ runner.tool_cache }}/android-sdk/cmdline-tools/latest/bin
 
       - name: Build Android App Bundle
         run: |
