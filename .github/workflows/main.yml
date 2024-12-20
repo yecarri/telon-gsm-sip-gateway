@@ -61,11 +61,12 @@ jobs:
       #    node-version: 12
       #    #node-version: 18.19.0
 
-      - name: Setup Android SDK
+      - name: Setup Android SDK (API Level 19)
         uses: android-actions/setup-android@v2
         with:
-          api-level: 29
-          ndk: true      
+          api-level: 19
+          ndk: true
+          build-tools: 30.0.3
 
       - name: Navigate to Project Root
         run: cd $GITHUB_WORKSPACE
