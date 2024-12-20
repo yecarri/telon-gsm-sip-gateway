@@ -43,6 +43,7 @@ jobs:
         run: |
           cd android
           ./gradlew wrapper --gradle-version 6.2.2 --distribution-type all
+        working-directory: telon-gateway-app
       - name: Setup Java 11
         uses: actions/setup-java@v2
         with:
