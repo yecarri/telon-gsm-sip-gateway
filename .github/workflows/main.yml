@@ -53,12 +53,16 @@ jobs:
         with:
           node-version: 12
 
-      - name: Setup Java 8
-        uses: actions/setup-java@v2
-        with:
+      - name: Set up OpenJDK 8
+        run: |
+          sudo apt update
+          sudo apt install openjdk-8-jdk
+      #- name: Setup Java 8
+      #  uses: actions/setup-java@v2
+      #  with:
             #distribution: 'temurin'
-            java-version: '8'
-            distribution: 'adoptopenjdk'
+            #java-version: '8'
+            #distribution: 'adoptopenjdk'
       #- name: Setup Java 17
       #  uses: actions/setup-java@v2
       #  with:
