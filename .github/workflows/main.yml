@@ -39,11 +39,11 @@ jobs:
       #  with:
       #    distribution: 'temurin'
       #    java-version: '8' # Требуется Java 8 для Gradle
-      - name: Setup Java 11
+      - name: Setup Java 8
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '8'
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
@@ -95,7 +95,7 @@ jobs:
           cd android
           chmod +x gradlew 
           ./gradlew clean
-          ./gradlew wrapper --gradle-version 6.2.2 --distribution-type all
+          #!./gradlew wrapper --gradle-version 6.2.2 --distribution-type all
           ./gradlew bundleRelease -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
         working-directory: telon-gateway-app
 
