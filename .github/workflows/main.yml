@@ -57,6 +57,12 @@ jobs:
       #    node-version: 12
       #    #node-version: 18.19.0
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 29
+          ndk: true      
+
       - name: Navigate to Project Root
         run: cd $GITHUB_WORKSPACE
         working-directory: telon-gateway-app
