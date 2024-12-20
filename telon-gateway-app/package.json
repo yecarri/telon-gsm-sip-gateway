@@ -20,9 +20,9 @@
     "react-native": "0.61.5",
     "react-native-console-panel": "^0.1.0",
     "react-native-device-info": "^5.5.7",
-    "react-native-replace-dialer": "https://github.com/telefon-one/react-native-replace-dialer",
-    "react-native-sip2": "https://github.com/telefon-one/react-native-sip2",
-    "react-native-tele": "https://github.com/telefon-one/react-native-tele"
+    "react-native-replace-dialer": "https://github.com/telon-org/react-native-replace-dialer",
+    "react-native-sip2": "https://github.com/telon-org/react-native-sip2",
+    "react-native-tele": "https://github.com/telon-org/react-native-tele"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
