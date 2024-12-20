@@ -1,1 +1,1 @@
-ln -s ../../../modules/react-native-tele
+#ln -s ../../../modules/react-native-tele
