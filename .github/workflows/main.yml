@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: taxlien-app
+        working-directory: telon-gateway-app
 #
 #      - name: Run tests
 #        run: npm test
@@ -47,17 +47,17 @@ jobs:
 
       - name: Navigate to Project Root
         run: cd $GITHUB_WORKSPACE
-        working-directory: taxlien-app
+        working-directory: telon-gateway-app
 
       - name: Install Dependencies
         run: npm install
-        working-directory: taxlien-app
+        working-directory: telon-gateway-app
 
       - name: Build Android App Bundle
         run: |
           mkdir -p android/app/build/intermediates/assets/release/
           npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/build/intermediates/assets/release/index.android.bundle --assets-dest android/app/build/intermediates/res/merged/release
-        working-directory: taxlien-app
+        working-directory: telon-gateway-app
 
       - name: Build Android Release
         run: |
@@ -65,7 +65,7 @@ jobs:
           chmod +x gradlew 
           ./gradlew clean
           ./gradlew bundleRelease -Pkeystore.password=${{ secrets.KEYSTORE_PASSWORD }}
-        working-directory: taxlien-app
+        working-directory: telon-gateway-app
 
   download_bundle:
     runs-on: ubuntu-latest
@@ -77,7 +77,7 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/dist
           cp $GITHUB_WORKSPACE/android/app/build/outputs/bundle/release/app-release.aab $GITHUB_WORKSPACE/dist
-        working-directory: taxlien-app
+        working-directory: telon-gateway-app
 
 
       - name: Archive Bundle
